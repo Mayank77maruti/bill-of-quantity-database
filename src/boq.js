@@ -1,9 +1,8 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React from 'react';
 import './boq.css';
 import ProductForm from './form';
-import { Slider, Skeleton } from '@mui/material';
-import { supabase } from './supabase';
+
 
 // const Card = ({ title, price, image, details, addOns, initialMinimized = false }) => {
 //   const [selectedAddOns, setSelectedAddOns] = useState({});
