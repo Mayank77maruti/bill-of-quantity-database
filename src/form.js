@@ -40,20 +40,20 @@ const ProductForm = () => {
       console.log(ProductImageError);
       return;
     }
-
+  
     const { data: Product, error } = await supabase.from("products").insert({
       title: data.title,
       details: data.details,
       price: data.price,
       image: ProductImage.path,
-      category: data.category,  // Added category field
+      category: data.category,
     }).select().single();
-
+  
     if (error) {
       console.log(error);
       return;
     }
-
+  
     for (let addons in data.addons) {
       const adf = data.addons[addons];
       console.log(adf);
@@ -70,7 +70,11 @@ const ProductForm = () => {
         break;
       }
     }
+  
+    // Refresh the page after submission
+    window.location.reload();
   };
+  
 
   return (
     <form className="" onSubmit={handleSubmit(onSubmit)}>
