@@ -34,7 +34,6 @@ const ProductForm = () => {
     name: 'addons'
   });
 
-  const [selectedCategory, setSelectedCategory] = useState('');
   const [subcategories, setSubcategories] = useState([]);
 
   const onSubmit = async (data) => {
@@ -93,7 +92,6 @@ const ProductForm = () => {
           {...register('category', { required: 'Category is required' })}
           onChange={(e) => {
             const category = e.target.value;
-            setSelectedCategory(category);
             const selectedCatObj = categories.find(cat => cat.name === category);
             setSubcategories(selectedCatObj?.subcategories || []);
           }}
