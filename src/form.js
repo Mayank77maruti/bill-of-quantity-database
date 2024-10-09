@@ -1,20 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './form.css';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { supabase } from './supabase';
 
 const ProductForm = () => {
   const categories = [
-    'Furniture', 
-    'Civil / Plumbing', 
-    'Lighting', 
-    'Electrical', 
-    'Partitions- door / windows / ceilings',
-    'Paint', 
-    'HVAC', 
-    'Smart Solutions', 
-    'Flooring', 
-    'Accessories'
+    { name: 'Furniture', subcategories: ['Chairs', 'Tables', 'Desks'] },
+    { name: 'Civil / Plumbing', subcategories: [] },
+    { name: 'Lighting', subcategories: ['Workstation', 'Cabin', 'meeting room', 'Public Spaces'] },
+    { name: 'Electrical', subcategories: ['Per sq ft cost standard'] },
+    { name: 'Partitions- door / windows / ceilings', subcategories: ['Workstation', 'Cabin', 'meeting room'] },
+    { name: 'Paint', subcategories: [] },
+    { name: 'HVAC', subcategories: ['Full Centralized'] },
+    { name: 'Smart Solutions', subcategories: [] },
+    { name: 'Flooring', subcategories: ['Workstation', 'Cabin', 'meeting room', 'Public Spaces'] },
+    { name: 'Accessories', subcategories: [] }
   ];
 
   const { register, handleSubmit, control, formState: { errors } } = useForm({
@@ -24,6 +24,7 @@ const ProductForm = () => {
       price: '',
       image: null,
       category: '',
+      subcategory: '',
       addons: [{ image: null, title: '', price: '' }]
     }
   });
@@ -33,6 +34,9 @@ const ProductForm = () => {
     name: 'addons'
   });
 
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [subcategories, setSubcategories] = useState([]);
+
   const onSubmit = async (data) => {
     console.log(data);
     const { data: ProductImage, error: ProductImageError } = await supabase.storage.from("addon").upload(`${data.title}-${data.details}`, data.image[0]);
@@ -40,20 +44,21 @@ const ProductForm = () => {
       console.log(ProductImageError);
       return;
     }
-  
+
     const { data: Product, error } = await supabase.from("products").insert({
       title: data.title,
       details: data.details,
       price: data.price,
       image: ProductImage.path,
       category: data.category,
+      subcategory: data.subcategory || null, // Save the subcategory if present
     }).select().single();
-  
+
     if (error) {
       console.log(error);
       return;
     }
-  
+
     for (let addons in data.addons) {
       const adf = data.addons[addons];
       console.log(adf);
@@ -63,35 +68,63 @@ const ProductForm = () => {
         await supabase.from("products").delete().eq("id", Product.id);
         break;
       }
-      const { error: AddonError } = await supabase.from("addons").insert({ title: adf.title, price: adf.price, image: AddonFile.path, productid: Product.id });
+      const { error: AddonError } = await supabase.from("addons").insert({
+        title: adf.title,
+        price: adf.price,
+        image: AddonFile.path,
+        productid: Product.id
+      });
       if (AddonError) {
         console.error(AddonError);
         await supabase.from("products").delete().eq("id", Product.id);
         break;
       }
     }
-  
+
     // Refresh the page after submission
     window.location.reload();
   };
-  
 
   return (
     <form className="" onSubmit={handleSubmit(onSubmit)}>
       <div>
+        <label>Category:</label>
+        <select 
+          {...register('category', { required: 'Category is required' })}
+          onChange={(e) => {
+            const category = e.target.value;
+            setSelectedCategory(category);
+            const selectedCatObj = categories.find(cat => cat.name === category);
+            setSubcategories(selectedCatObj?.subcategories || []);
+          }}
+        >
+          <option value="">Select Category</option>
+          {categories.map((category, index) => (
+            <option key={index} value={category.name}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+        {errors.category && <p>{errors.category.message}</p>}
+      </div>
+
+      {/* Conditionally render subcategories for selected categories */}
+      {subcategories.length > 0 && (
         <div>
-          <label>Category:</label>
-          <select {...register('category', { required: 'Category is required' })}>
-            <option value="">Select Category</option>
-            {categories.map((category, index) => (
-              <option key={index} value={category}>
-                {category}
+          <label>Subcategory:</label>
+          <select {...register('subcategory', { required: 'Subcategory is required' })}>
+            <option value="">Select Subcategory</option>
+            {subcategories.map((subcategory, index) => (
+              <option key={index} value={subcategory}>
+                {subcategory}
               </option>
             ))}
           </select>
-          {errors.category && <p>{errors.category.message}</p>}
+          {errors.subcategory && <p>{errors.subcategory.message}</p>}
         </div>
+      )}
 
+      <div>
         <label>Title:</label>
         <input
           type="text"
