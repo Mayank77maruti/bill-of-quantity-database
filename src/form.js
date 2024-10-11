@@ -5,8 +5,8 @@ import { supabase } from './supabase';
 
 const ProductForm = () => {
   const categories = [
-    { name: 'Furniture', subcategories: ['Chairs', 'Tables', 'Desks'] },
-    { name: 'Civil / Plumbing', subcategories: [] },
+    { name: 'Furniture', subcategories: ['Linear Workstation', 'L-Type Workstation', 'Md cabin','Manager Cabin','Small Cabin','Discussion Room','Interview Room','conference room','Board Room','Meeting Room','HR room','Video Recording Room','Reception','pantry','Phone Booth','Break Out room','UPS','Bms','Executive Washroom'] },
+    { name: 'Civil / Plumbing', subcategories: ['Basic','Luxury','Premium'] },
     { name: 'Lighting', subcategories: ['Workstation', 'Cabin', 'meeting room', 'Public Spaces'] },
     { name: 'Electrical', subcategories: ['Per sq ft cost standard'] },
     { name: 'Partitions- door / windows / ceilings', subcategories: ['Workstation', 'Cabin', 'meeting room'] },
